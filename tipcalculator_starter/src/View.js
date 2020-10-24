@@ -37,11 +37,11 @@ function outputSet(dispatch, model) {
   return table({ className: 'w-100' }, [
     tr([
       td('Tip'),
-      td(`${model.calculatedTip}`)
+      td(`$ ${model.calculatedTip}`)
     ]),
     tr([
       td('Total'),
-      td(`${model.calculatedTotal}`)
+      td(`$ ${model.calculatedTotal}`)
     ])
   ])
 }
