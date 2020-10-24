@@ -7,7 +7,8 @@ const MSGS = {
   SAVE_FLASHCARD: 'SAVE_FLASHCARD',
   DELETE_FLASHCARD: 'DELETE_FLASHCARD',
   EDIT_FLASHCARD: 'EDIT_FLASHCARD',
-  SHOW_ANSWER_OF_FLASHCARD: 'SHOW_ANSWER_OF_FLASHCARD'
+  SHOW_ANSWER_OF_FLASHCARD: 'SHOW_ANSWER_OF_FLASHCARD',
+  EDIT_RANKING_OF_FLASHCARD: 'EDIT_RANKING_OF_FLASHCARD'
 }
 
 export const showFormMsg = showForm => ({
@@ -40,6 +41,12 @@ export const editFlashcardMsg = flashcardId => ({
 export const showAnswerOfFlashcardMsg = flashcardId => ({
   type: MSGS.SHOW_ANSWER_OF_FLASHCARD,
   flashcardId
+});
+
+export const editRankingOfFlashcardMsg = (flashcardId, rank) => ({
+  type: MSGS.EDIT_RANKING_OF_FLASHCARD,
+  flashcardId,
+  rank
 });
 
 function update(msg, model) {
@@ -78,6 +85,8 @@ function update(msg, model) {
       }
     case MSGS.SHOW_ANSWER_OF_FLASHCARD:
       return showAnswerOfFlashcard(msg, model)
+    case MSGS.EDIT_RANKING_OF_FLASHCARD:
+      return editRankingOfFlashcard(msg, model)
     default:
       return model;
   }
@@ -85,7 +94,7 @@ function update(msg, model) {
 
 const addFlashcard = model => {
   const { question, answer, nextId, flashcards } = model;
-  const flashcard = { id: nextId, question, answer, showAnswer: false };
+  const flashcard = { id: nextId, question, answer, showAnswer: false, rank: 0 };
   return {
     ...model,
     flashcards: [...flashcards, flashcard],
@@ -121,7 +130,7 @@ const showAnswerOfFlashcard = (msg, model) => {
   const flashcards = R.map(
     flashcard => {
       if (flashcard.id === msg.flashcardId) {
-        return { ...flashcard, showAnswer: true }
+        return { ...flashcard, showAnswer: !flashcard.showAnswer }
       }
       return flashcard
     },
@@ -136,5 +145,25 @@ const showAnswerOfFlashcard = (msg, model) => {
     showForm: false
   };
 };
+
+const editRankingOfFlashcard = (msg, model) => {
+  const flashcards = R.map(
+    flashcard => {
+      if (flashcard.id === msg.flashcardId) {
+        return { ...flashcard, rank: msg.rank }
+      }
+      return flashcard
+    },
+    model.flashcards
+  )
+
+  return {
+    ...model,
+    flashcards,
+    question: '',
+    answer: '',
+    showForm: false
+  };
+}
 
 export default update;

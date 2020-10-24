@@ -8,10 +8,11 @@ import {
   saveFlashcardMsg,
   deleteFlashcardMsg,
   editFlashcardMsg,
-  showAnswerOfFlashcardMsg
+  showAnswerOfFlashcardMsg,
+  editRankingOfFlashcardMsg
 } from "./Update";
 
-const { pre, div, h1, textarea, button, i } = hh(h);
+const { pre, div, h1, textarea, button } = hh(h);
 
 const inputTextArea = (label, value, oninput) => {
   return div([
@@ -55,13 +56,61 @@ const formView = (dispatch, model) => {
   }
 }
 
-const answerView = flashcard => {
-  if (flashcard.showAnswer) {
-    return div(flashcard.answer)
-  }
-}
+const rankingButtons = (dispatch, flashcard) => {
+  return div({ className: 'flex' }, [
+    button(
+      {
+        className: 'white bn pa2 mv2 bg-red',
+        onclick: () => dispatch(editRankingOfFlashcardMsg(flashcard.id ,0))
+      },
+      'Bad'
+    ),
+    button(
+      {
+        className: 'white bn pa2 mv2 bg-blue',
+        onclick: () => dispatch(editRankingOfFlashcardMsg(flashcard.id, 1))
+      },
+      'Good'
+    ),
+    button(
+      {
+        className: 'white bn pa2 mv2 bg-pink',
+        onclick: () => dispatch(editRankingOfFlashcardMsg(flashcard.id, 2))
+      },
+      'Great'
+    )
+  ])
+};
 
 const card = (dispatch, flashcard) => {
+  if (flashcard.showAnswer) {
+    return div({ className: 'w-third bg-light-yellow pa3 ma2' }, [
+      div('Question'),
+      div(
+        {
+          className: 'pointer',
+          onclick: () => dispatch(editFlashcardMsg(flashcard.id)) 
+        }, 
+        flashcard.question
+      ),
+      div(flashcard.answer),
+      div(
+        {
+          className: 'pointer',
+          onclick: () => dispatch(showAnswerOfFlashcardMsg(flashcard.id))
+        }, 
+        'Hide Answer'
+      ),
+      button(
+        {
+          className: 'ma3 pa2 bg-light-red white br1 bn',
+          onclick: () => dispatch(deleteFlashcardMsg(flashcard.id)) 
+        }, 
+        'Delete'
+      ),
+      rankingButtons(dispatch, flashcard)
+    ])
+  }
   return div({ className: 'w-third bg-light-yellow pa3 ma2' }, [
     div('Question'),
     div(
@@ -78,7 +127,6 @@ const card = (dispatch, flashcard) => {
       }, 
       'Show Answer'
     ),
-    answerView(flashcard),
     button(
       {
         className: 'ma3 pa2 bg-light-red white br1 bn',
@@ -90,10 +138,13 @@ const card = (dispatch, flashcard) => {
 };
 
 const flashcardsBody = (dispatch, flashcards) => {
-  const cards = R.map(
-    R.partial(card, [dispatch]),
-    flashcards
-  )
+  const sortByRank = R.sortBy(R.prop('rank'))
+  const cards = R.pipe(
+    sortByRank,
+    R.map(
+      R.partial(card, [dispatch])
+    )
+  )(flashcards)
 
   return div({ className: 'flex' }, cards)
 };
