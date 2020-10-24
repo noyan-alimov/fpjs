@@ -1,7 +1,7 @@
 import hh from 'hyperscript-helpers';
 import { h } from 'virtual-dom';
 import * as R from 'ramda';
-import { showFormMsg, mealInputMsg, caloriesInputMsg, saveMealMsg } from './Update'
+import { showFormMsg, mealInputMsg, caloriesInputMsg, saveMealMsg, deleteMealMsg, editMealMsg } from './Update'
 
 const { 
     pre, 
@@ -16,7 +16,8 @@ const {
     th, 
     td,
     thead,
-    tbody
+    tbody,
+    i
 } = hh(h);
 
 function fieldSet(labelText, inputValue, oninput) {
@@ -61,7 +62,7 @@ function formView(dispatch, model) {
                 className: 'w100 mv2',
                 onsubmit: e => {
                     e.preventDefault()
-                    dispatch(saveMealMsg())
+                    dispatch(saveMealMsg)
                 }
             },
             [
@@ -104,7 +105,16 @@ function mealRow(dispatch, className, meal) {
     return tr({ className }, [
         cell(td, 'pa2', meal.description),
         cell(td, 'pa2 tr', meal.calories),
-        cell(td, 'pa2 tr', [])
+        cell(td, 'pa2 tr', [
+            i({
+                className: 'ph1 fa fa-trash-o pointer',
+                onclick: () => dispatch(deleteMealMsg(meal.id))
+            }),
+            i({
+                className: 'ph1 fa fa-pencil-square-o pointer',
+                onclick: () => dispatch(editMealMsg(meal.id))
+            })
+        ])
     ])
 }
 
@@ -144,8 +154,8 @@ function view(dispatch, model) {
     return div({ className: 'mw6 center' }, [
         h1({ className: 'f2 pv2 bb' }, 'Calorie Counter'),
         formView(dispatch, model),
-        tableView(dispatch, model.meals),
-        pre(JSON.stringify(model, null, 2))
+        tableView(dispatch, model.meals)
+        // pre(JSON.stringify(model, null, 2))
     ])
 }
 

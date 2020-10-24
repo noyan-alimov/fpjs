@@ -4,7 +4,9 @@ const MSGS = {
     SHOW_FORM: 'SHOW_FORM',
     MEAL_INPUT: 'MEAL_INPUT',
     CALORIES_INPUT: 'CALORIES_INPUT',
-    SAVE_MEAL: 'SAVE_MEAL'
+    SAVE_MEAL: 'SAVE_MEAL',
+    DELETE_MEAL: 'DELETE_MEAL',
+    EDIT_MEAL: 'EDIT_MEAL'
 };
 
 export function showFormMsg(showForm) {
@@ -28,9 +30,19 @@ export function caloriesInputMsg(calories) {
     }
 }
 
-export function saveMealMsg() {
+export const saveMealMsg = { type: MSGS.SAVE_MEAL }
+
+export function deleteMealMsg(id) {
     return {
-        type: MSGS.SAVE_MEAL
+        type: MSGS.DELETE_MEAL,
+        id
+    }
+}
+
+export function editMealMsg(editId) {
+    return {
+        type: MSGS.EDIT_MEAL,
+        editId
     }
 }
 
@@ -47,7 +59,30 @@ function update(msg, model) {
             )(msg.calories)
             return { ...model, calories }
         case MSGS.SAVE_MEAL:
-            return add(model)
+            const { editId } = model;
+            const updatedModel = editId !== null ?
+                edit(model) :
+                add(model)
+            return updatedModel
+        case MSGS.DELETE_MEAL:
+            const meals = R.filter(
+                meal => meal.id !== msg.id,
+                model.meals
+            )
+            return { ...model, meals }
+        case MSGS.EDIT_MEAL:
+            const meal = R.find(
+                meal => meal.id === msg.editId,
+                model.meals
+            );
+
+            return {
+                ...model,
+                editId: msg.editId,
+                description: meal.description,
+                calories: meal.calories,
+                showForm: true
+            }
         default:
             return model;
     }
@@ -60,6 +95,23 @@ function add(model) {
         ...model,
         meals: [...meals, meal],
         nextId: nextId + 1,
+        description: '',
+        calories: 0,
+        showForm: false
+    }
+}
+
+function edit(model) {
+    const { description, calories, editId } = model
+    const meals = R.map(meal => {
+        if (meal.id === editId) {
+            return { ...meal, description, calories }
+        }
+        return meal
+    }, model.meals)
+    return {
+        ...model,
+        meals,
         description: '',
         calories: 0,
         showForm: false
