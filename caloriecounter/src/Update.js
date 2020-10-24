@@ -47,13 +47,13 @@ function update(msg, model) {
             )(msg.calories)
             return { ...model, calories }
         case MSGS.SAVE_MEAL:
-            return add(msg, model)
+            return add(model)
         default:
             return model;
     }
 }
 
-function add(msg, model) {
+function add(model) {
     const { nextId, description, calories, meals } = model
     const meal = { id: nextId, description, calories }
     return {
