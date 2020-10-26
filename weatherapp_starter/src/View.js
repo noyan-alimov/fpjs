@@ -28,11 +28,12 @@ const locationInputView = (dispatch, model) => {
 };
 
 const locationView = (dispatch, location) => {
+	console.log(location);
 	return div({ className: 'flex mt4' }, [
 		div([h5('Location'), h3(location.location)]),
-		div({ className: 'ml6' }, [h5('Temp'), h3('?')]),
-		div({ className: 'ml3' }, [h5('Low'), h3('?')]),
-		div({ className: 'ml3' }, [h5('High'), h3('?')]),
+		div({ className: 'ml6' }, [h5('Temp'), h3(`${location.temp}`)]),
+		div({ className: 'ml3' }, [h5('Low'), h3(`${location.low}`)]),
+		div({ className: 'ml3' }, [h5('High'), h3(`${location.high}`)]),
 		div({ className: 'tc' }, [
 			button(
 				{
